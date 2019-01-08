@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
-import os
 from config import secret_key, databaseurl, mail_server
 from config import mail_port, mail_username, mail_password
 

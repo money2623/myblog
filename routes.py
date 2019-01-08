@@ -9,7 +9,7 @@ import os
 from PIL import Image
 from flask import abort
 from flask_mail import Message
-from config import mail_username
+from config import mail_username, base_url
 
 @app.route('/')
 @app.route('/home')
@@ -43,7 +43,7 @@ def send_register_email(email):
 		sender = mail_username,\
 		recipients = [email])
 
-	msg.body = ""
+	msg.body = "Please verify your email by clicking this link"
 	mail.send(msg)
 
 
@@ -184,7 +184,7 @@ def send_reset_email(user):
 
 	msg.body = "To reset your password visit the link : {} "\
 	"if you did not make this request please ignore".\
-	format(url_for('reset_token',token=token, _external=True))
+	format(base_url+url_for('reset_token',token=token))
 
 	mail.send(msg)
 
