@@ -33,19 +33,40 @@ def register():
 			password= hashed_password)
 		db.session.add(user)
 		db.session.commit()
-		send_register_email(form.email.data)
-		flash('Account created for {}'.format(form.username.data), 'success')
+		send_register_email(form.email.data,form.username.data, user)
+		flash('Email sent for {}, Please verify'.format(form.username.data), 'success')
 		return redirect(url_for('login'))
 	return render_template('register.html', title='Register', form=form)
 
-def send_register_email(email):
+def send_register_email(email,username,user):
 	msg = Message('Welcome to blog', \
 		sender = mail_username,\
 		recipients = [email])
 
-	msg.body = "Please verify your email by clicking this link"
+	with open('templates/confirm_verification.html', 'r') as myfile:
+		data=myfile.read().replace('\n', '')
+
+	token = user.get_reset_token()
+	confirmation_url = base_url + url_for('confirm_verification', token = token)
+
+	msg.body = data.format(user_email=email,user_username=username,confirmation_url = confirmation_url)
+	msg.html = msg.body
 	mail.send(msg)
 
+
+@app.route('/confirm_verification/<token>', methods = ['GET', 'POST'])
+def confirm_verification(token):
+
+	user = User.verify_reset_token(token)
+
+	if user is None:
+		flash('Invalid or expired Token', 'warning')
+		return redirect(url_for('register'))
+	else:
+		user.email_verified = 1
+		db.session.commit()
+		flash('Email Verified', 'success')
+		return redirect(url_for('login'))
 
 @app.route('/login',methods=['GET','POST'])
 def login():
@@ -53,7 +74,7 @@ def login():
 		return redirect(url_for('home'))
 	form = LoginForm()
 	if form.validate_on_submit():
-		user = User.query.filter_by(email = form.email.data).first()
+		user = User.query.filter_by(email = form.email.data, email_verified = 1).first()
 		if user and bcrypt.check_password_hash(user.password, form.password.data):
 			login_user(user,remember=form.remember.data)
 			next_page = request.args.get('next')
