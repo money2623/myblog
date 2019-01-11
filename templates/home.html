@@ -10,6 +10,16 @@
 		    </div>
 		    <h2><a class="article-title" href="{{url_for('post',post_id = post.id)}}">{{ post.title }}</a></h2>
 		    <p class="article-content">{{ post.content }}</p>
+		    {% if  post.id in post_list %}
+		    <a class="btn btn-success btn-sm" href="{{url_for('post_like', post_id = post.id)}}">
+	          <span class="glyphicon glyphicon-thumbs-up">Like</span> <span id="likes_count">{{post.likes | length}}</span>
+	        </a>
+	        {% else %}
+	         <a class="btn btn-outline-success btn-sm" href="{{url_for('post_like', post_id = post.id)}}">
+	          <span class="glyphicon glyphicon-thumbs-up">Like</span> <span id="likes_count">{{post.likes | length}}</span>
+	        </a>
+
+	        {% endif %}
 		  </div>
 		</article>
 

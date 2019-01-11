@@ -16,7 +16,11 @@ from config import mail_username, base_url
 def home():
 	page = request.args.get('page',1,type=int)
 	posts = Post.query.order_by(Post.date_posted.desc()).paginate(page= page,per_page=5)
-	return render_template('home.html', posts=posts)
+	post_list = []
+	if current_user.is_authenticated:
+		for post in  current_user.posts_liked_by_user:
+			post_list.append(post.post_id)
+	return render_template('home.html', posts=posts, post_list=post_list)
 
 @app.route('/about')
 def about():
@@ -108,6 +112,20 @@ def save_picture(form_picture):
 
 	return picture_fn
 
+
+@app.route('/post_like/<int:post_id>', methods=['GET', 'POST'])
+@login_required
+def post_like(post_id):
+	user = User.query.filter_by(username = current_user.username).first()
+	print 'user', user
+	post = Post.query.get_or_404(post_id)
+	if not user.has_liked_post(post):
+		user.like_post(post)
+		db.session.commit()
+	else:
+		user.unlike_post(post)
+		db.session.commit()
+	return redirect(request.referrer)
 
 @app.route('/account', methods=['GET','POST'])
 @login_required
