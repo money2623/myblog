@@ -21,7 +21,7 @@ Flask-SocketIO==3.1.2
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
 functools32==3.2.3.post2
-html5lib==0.999
+html5lib==0.999999999
 idna==2.7
 ipython==2.4.1
 itsdangerous==0.24
